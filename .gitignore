@@ -1,0 +1,36 @@
+# ── 二进制与大型依赖：不入库，请用 Release 附件分发 ──
+*.zip
+*.7z
+*.rar
+node/
+ffmpeg/
+soundfonts/
+engine/
+harmonica/
+jianpu-tools/
+*-portable/
+*.exe
+*.dll
+*.sf2
+*.sf3
+*.dls
+
+# ── 生成物与临时文件 ──
+*.mp3
+*.wav
+*.mid
+*.flac
+.jianpu-tmp/
+.tmp/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# ── 编辑器 / 系统 ──
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.bak
+*~

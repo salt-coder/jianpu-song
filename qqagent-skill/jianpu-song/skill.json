@@ -1,0 +1,79 @@
+{
+  "id": "jianpu-song",
+  "name": "简谱点歌",
+  "version": "1.0.3",
+  "apiVersion": 1,
+  "category": "media",
+  "description": "群友发来一串简谱数字（如 1166556）时，调用本机 3.py 合成音乐，并以语音条发到群里。",
+  "author": "本地自建",
+  "enabledByDefault": true,
+  "settings": {
+    "scriptPath": "",
+    "pythonPath": "",
+    "instrument": "口琴",
+    "bpm": 120,
+    "key": "C",
+    "sendAsVoice": true,
+    "maxNotes": 160,
+    "maxSeconds": 120,
+    "timeoutMs": 180000
+  },
+  "configSchema": {
+    "scriptPath": {
+      "type": "string",
+      "label": "3.py 的完整路径（留空 = 自动查找）",
+      "description": "留空时自动在这些位置找：技能目录下的 tools/、QQ Agent 的 resources/app/jianpu-tools/、用户目录下的 jianpu-tools/。找不到才需要手填。"
+    },
+    "pythonPath": {
+      "type": "string",
+      "label": "Python 解释器路径（可留空）",
+      "description": "留空则自动查找 python / py 启动器。找不到时填绝对路径，例如 C:\\Python311\\python.exe。"
+    },
+    "instrument": {
+      "type": "enum",
+      "values": ["口琴", "钢琴", "电钢", "八音盒", "吉他", "小提琴", "大提琴", "弦乐", "长笛", "排箫", "萨克斯", "正弦波"],
+      "label": "默认音色",
+      "description": "群友没指定时用这个音色。「正弦波」是纯电子音，不需要音源文件，最快。"
+    },
+    "bpm": {
+      "type": "number",
+      "label": "默认速度（BPM）",
+      "description": "每分钟多少拍，40~240。默认 120。"
+    },
+    "key": {
+      "type": "string",
+      "label": "默认调号",
+      "description": "如 C / D / F / G，或写成 1=D。默认 C。"
+    },
+    "sendAsVoice": {
+      "type": "boolean",
+      "label": "以语音条发送",
+      "description": "开启后发语音条（推荐）；关闭则改为发送 MP3 文件。"
+    },
+    "maxNotes": {
+      "type": "number",
+      "label": "最长音符数",
+      "description": "超过这个数量的谱子会被拒绝，防止刷屏和卡顿。默认 160。"
+    },
+    "maxSeconds": {
+      "type": "number",
+      "label": "最长时长（秒）",
+      "description": "合成结果超过这个时长会被拒绝。默认 120。"
+    },
+    "timeoutMs": {
+      "type": "number",
+      "label": "合成超时（毫秒）",
+      "description": "生成一首曲子的最长时间，超时判定失败。默认 180000（3 分钟）。"
+    }
+  },
+  "prompt": {
+    "sections": [
+      {
+        "id": "jianpu-song-note",
+        "title": "简谱点歌",
+        "priority": 40,
+        "content": "群友可能直接甩一串 0~7 的数字当简谱点歌（例如「1166556」「1 2 3 1|3 4 5-」）。当这串内容看起来是音阶（只含 0~7 及简谱记号、长度 ≥3），且对方语气是在发谱/点歌/让你演奏时，用 play_jianpu 生成并发送语音条。单纯的数量、编号、QQ 号、年份、房间号不要用；拿不准就先问一句「这是简谱吗，要我吹出来？」。"
+      }
+    ]
+  }
+}
