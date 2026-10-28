@@ -357,10 +357,26 @@ def parse_tune(text, key='C'):
             while j < n and text[j] not in '）)':
                 inner += text[j]
                 j += 1
-            ev = None
+            k = j + 1 if j < n else j
+            # ↓ 修复点：把「右括号之后」的记号（/ - . ~ ' , : 等）也交给解析器。
+            #   旧代码直接跳到 ) 之后，导致 (6)/ 与 (6)- 和 (6) 的时值完全一样。
+            m = k
+            while m < n:
+                ch = text[m]
+                if ch in "'^+,./-~":
+                    m += 1
+                elif ch == ':':
+                    m += 1
+                    while m < n and (text[m].isdigit() or text[m] == '.'):
+                        m += 1
+                else:
+                    break
             if inner.strip():
-                ev, _ = parse_event(inner.strip(), 0, base, force_low=1)
-            i = j + 1 if j < n else j
+                ev, _ = parse_event(inner.strip() + text[k:m], 0, base, force_low=1)
+                i = m
+            else:
+                ev = None
+                i = k
             if ev is None:
                 print(f'  警告：括号里没解析出音符: （{inner}）')
                 continue
