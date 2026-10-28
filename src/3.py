@@ -204,7 +204,10 @@ def render_via_sf2(events, bpm, out_wav, soundfont, program, reverb=70, gain=0.8
     for midi, beats, gap in events:
         dur = beats * beat
         if midi is not None:
-            evs.append([round(t, 4), int(midi), round(dur * 0.95, 4)])
+            # 长音保持 95%；短音（<0.45s，例如 2/ = 0.25s）收到 85%，
+            # 否则同音连发时音源的 release 尾会叠成一片，听感糊、像"嗡"。
+            hold = dur * (0.95 if dur >= 0.45 else 0.85)
+            evs.append([round(t, 4), int(midi), round(hold, 4)])
         t += dur + gap * beat
     ev_json = os.path.splitext(out_wav)[0] + '.events.json'
     with open(ev_json, 'w', encoding='utf-8') as f:
@@ -594,9 +597,11 @@ def tone_pcm(midi, seconds, amp=0.5, vibrato=0.0):
     if total <= 0:
         return out
     freq = 440.0 * (2.0 ** ((midi - 69) / 12.0))
-    atk = max(1, int(SAMPLE_RATE * 0.008))
-    dec = max(1, int(SAMPLE_RATE * 0.06))
-    rel = max(1, min(int(SAMPLE_RATE * 0.04), total // 4))
+    # 起音/衰减/淡出按音符长度缩放：短音（如 2/ = 0.25s）需要干脆的包络，
+    # 否则固定的 40ms 淡出会占到音符的 16%，听感变成"呜—呜—呜"的抖动。
+    atk = max(1, int(SAMPLE_RATE * min(0.008, seconds * 0.02)))
+    dec = max(1, int(SAMPLE_RATE * min(0.060, seconds * 0.20)))
+    rel = max(1, min(int(SAMPLE_RATE * min(0.040, seconds * 0.06)), total // 4))
     w = 2.0 * math.pi * freq / SAMPLE_RATE
     vib_w = 2.0 * math.pi * 5.0 / SAMPLE_RATE
     depth = vibrato * 0.012
